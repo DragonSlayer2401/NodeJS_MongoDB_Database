@@ -4,7 +4,7 @@ const actorSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   movie: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Movie",
+    ref: "movie",
     required: true,
   },
 
