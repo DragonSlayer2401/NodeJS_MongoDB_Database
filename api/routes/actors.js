@@ -2,9 +2,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const Actor = require("../models/actor");
+const Movie = require("../models/movie")
 
 router.get("/", (req, res, next) => {
   Actor.find({})
+    .select("name _id")
+    .strictPopulate("movies")
+    .exec()
     .then((result) => {
       res.status(200).json({
         message: "Retrieved Actors",
@@ -27,6 +31,9 @@ router.get("/", (req, res, next) => {
 router.get("/:id", (req, res, next) => {
   const actorId = req.params.id;
   Actor.findById(actorId)
+    .select("name _id")
+    .populate("Movie")
+    .exec()
     .then((result) => {
       res.status(200).json({
         message: `Retrieved Actor`,
@@ -95,6 +102,7 @@ router.patch("/:id", (req, res, next) => {
       $set: updatedActor,
     }
   )
+    .exec()
     .then((result) => {
       res.status(200).json({
         message: "Updated Actor",
@@ -121,6 +129,7 @@ router.patch("/:id", (req, res, next) => {
 router.delete("/:id", (req, res, next) => {
   const actorId = req.params.id;
   Actor.deleteOne({ _id: actorId })
+    .exec()
     .then((result) => {
       res.status(200).json({
         message: "Deleted Actor",
