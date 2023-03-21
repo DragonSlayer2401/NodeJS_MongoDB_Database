@@ -65,7 +65,7 @@ router.get("/:id", (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
-  Actor.find({ name: req.body.name })
+  Actor.find({ name: req.body.name, movie: req.body.movie })
     .exec()
     .then((result) => {
       if (result.length > 0) {
@@ -111,66 +111,87 @@ router.post("/", (req, res, next) => {
 
 router.patch("/:id", (req, res, next) => {
   const actorId = req.params.id;
-  const updatedActor = {
-    name: req.body.name,
-    movie: req.body.movie,
-  };
-
-  Actor.updateOne(
-    {
-      _id: actorId,
-    },
-    {
-      $set: updatedActor,
-    }
-  )
+  Actor.findById(actorId)
     .exec()
     .then((result) => {
-      res.status(200).json({
-        message: messages.actor_updated,
-        actor: {
-          name: result.name,
-          movie: result.movie,
-          id: result._id,
+      if (!result) {
+        return res.status(406).json({
+          message: messages.actor_not_found,
+        });
+      }
+
+      const updatedActor = {
+        name: req.body.name,
+        movie: req.body.movie,
+      };
+
+      Actor.updateOne(
+        {
+          _id: actorId,
         },
-        metadata: {
-          host: req.hostname,
-          method: req.method,
-        },
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        error: {
-          message: err.message,
-        },
-      });
+        {
+          $set: updatedActor,
+        }
+      )
+        .exec()
+        .then((result) => {
+          res.status(200).json({
+            message: messages.actor_updated,
+            actor: {
+              acknowledged: result.acknowledged,
+              modifiedCount: result.modifiedCount,
+              upsertedId: result.upsertedId,
+              upsertedCount: result.upsertedCount,
+              matchedCount: result.matchedCount,
+            },
+            metadata: {
+              host: req.hostname,
+              method: req.method,
+            },
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            error: {
+              message: err.message,
+            },
+          });
+        });
     });
 });
 
 router.delete("/:id", (req, res, next) => {
   const actorId = req.params.id;
-  Actor.deleteOne({ _id: actorId })
+  Actor.findById(actorId)
     .exec()
     .then((result) => {
-      res.status(200).json({
-        message: messages.actor_deleted,
-        actor: {
-          acknowledged: result.acknowledged,
-          deletedCount: result.deletedCount,
-        },
-        metadata: {
-          host: req.hostname,
-          method: req.method,
-        },
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        error: {
-          message: err.message,
-        },
-      });
+      if (!result) {
+        return res.status(406).json({
+          message: messages.actor_not_found,
+        });
+      }
+      Actor.deleteOne({ _id: actorId })
+        .exec()
+        .then((result) => {
+          res.status(200).json({
+            message: messages.actor_deleted,
+            actor: {
+              acknowledged: result.acknowledged,
+              deletedCount: result.deletedCount,
+            },
+            metadata: {
+              host: req.hostname,
+              method: req.method,
+            },
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            error: {
+              message: err.message,
+            },
+          });
+        });
     });
 });
 

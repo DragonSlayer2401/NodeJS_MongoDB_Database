@@ -3,7 +3,8 @@ module.exports = {
     actors_found: "Retrieved Actors",
     actor_found: "Retrieved Actor",
     actor_saved: "Actor Saved",
-    actor_updated: "Actor Updated",
+    actor_updated: "Updated Actor",
     actor_deleted: "Deleted Actor",
-    actor_exists: "Actor is already cataloged"
+    actor_exists: "Actor is already cataloged",
+    actor_does_not_exist: "Actor is not cataloged"
 }
